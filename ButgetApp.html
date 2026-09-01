@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BudgetApp</title>
+    <style>
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-color: #1c1c1e;
+            --accent-color: #007aff;
+            --danger-color: #ff3b30;
+            --border-color: #e5e5ea;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Sayfa Geçiş Yönetimi */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .header-with-back {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .form-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #8e8e93;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            background-color: #fafafa;
+        }
+
+        input:focus {
+            border-color: var(--accent-color);
+            background-color: #fff;
+        }
+
+        button.btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button.btn-danger-outline {
+            width: 100%;
+            padding: 12px;
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Tıklanabilir Kart Tasarımı */
+        .credit-card-item {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 20px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .credit-card-item:active {
+            transform: scale(0.98);
+        }
+
+        .card-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-subtext {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #8e8e93;
+            padding: 30px 0;
+            font-size: 15px;
+        }
+
+        .card-details-box {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- SAYFA 1: KREDİ KARTLARI ANA EKRANI -->
+    <div id="homePage" class="page active">
+        <h1>💳 Kredi Kartlarım</h1>
+
+        <!-- Sadece İsim Alarak Kart Ekleme -->
+        <div class="form-card">
+            <form id="cardForm">
+                <div class="form-group">
+                    <label for="cardName">Kredi Kartı İsmi</label>
+                    <input type="text" id="cardName" placeholder="Örn: Garanti Bonus, Axess, İş Bankası" required>
+                </div>
+                <button type="submit" class="btn-primary">Kart Ekle</button>
+            </form>
+        </div>
+
+        <!-- Eklenen Kartların Listesi -->
+        <div id="cardList" class="card-list">
+            <!-- Kartlar JS ile buraya gelecek -->
+        </div>
+    </div>
+
+    <!-- SAYFA 2: KART DETAY SAYFASI -->
+    <div id="detailPage" class="page">
+        <div class="header-with-back">
+            <button class="back-btn" onclick="showHomePage()">‹ Kartlar</button>
+            <h1 id="detailCardTitle" style="margin-bottom:0;">Kart Detayı</h1>
+            <div></div> <!-- Dengeleme için boş div -->
+        </div>
+
+        <div class="card-details-box">
+            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 12px;">Kart ID: <span id="detailCardId"></span></p>
+            
+            <div style="padding: 20px 0; text-align: center; border: 2px dashed var(--border-color); border-radius: 8px;">
+                <p style="color: #8e8e93;">Bu kartın harcamaları, limit bilgisi ve taksit takibi bu sayfada yer alacak.</p>
+            </div>
+
+            <!-- Kart Silme Butonu Artık Detay Sayfasında -->
+            <button class="btn-danger-outline" onclick="deleteCurrentCard()">Bu Kartı Sil</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Cihaz Hafızasından (localStorage) Kartları Yükle
+    let cards = JSON.parse(localStorage.getItem('budgetApp_cards')) || [];
+    let currentCardId = null;
+
+    const cardForm = document.getElementById('cardForm');
+    const cardList = document.getElementById('cardList');
+    const homePage = document.getElementById('homePage');
+    const detailPage = document.getElementById('detailPage');
+
+    // Kart Listesini Ekrana Basma (Temiz Tasarım)
+    function renderCards() {
+        cardList.innerHTML = '';
+
+        if (cards.length === 0) {
+            cardList.innerHTML = '<div class="empty-state">Henüz eklenmiş bir kart yok.<br>Yukarıdan kart ekleyerek başlayabilirsin.</div>';
+            return;
+        }
+
+        cards.forEach((card) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'credit-card-item';
+            cardEl.onclick = () => openCardDetail(card.id);
+
+            cardEl.innerHTML = `
+                <div class="card-name">${escapeHtml(card.cardName)}</div>
+                <div class="card-subtext">Detayları görmek için dokunun ›</div>
+            `;
+            cardList.appendChild(cardEl);
+        });
+    }
+
+    // Yeni Kart Ekleme
+    cardForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const cardNameInput = document.getElementById('cardName');
+
+        const newCard = {
+            id: Date.now(),
+            cardName: cardNameInput.value.trim()
+        };
+
+        cards.push(newCard);
+        saveAndRender();
+        cardNameInput.value = '';
+    });
+
+    // Detay Sayfasındaki Sil Butonu
+    function deleteCurrentCard() {
+        if (!currentCardId) return;
+        
+        if (confirm('Bu kartı ve karta ait verileri silmek istediğinize emin misiniz?')) {
+            cards = cards.filter(card => card.id !== currentCardId);
+            saveAndRender();
+            showHomePage();
+        }
+    }
+
+    // Detay Sayfasını Açma
+    function openCardDetail(id) {
+        const card = cards.find(c => c.id === id);
+        if (!card) return;
+
+        currentCardId = id;
+        document.getElementById('detailCardTitle').innerText = card.cardName;
+        document.getElementById('detailCardId').innerText = card.id;
+
+        homePage.classList.remove('active');
+        detailPage.classList.add('active');
+    }
+
+    // Ana Sayfaya Geri Dönüş
+    function showHomePage() {
+        currentCardId = null;
+        detailPage.classList.remove('active');
+        homePage.classList.add('active');
+    }
+
+    // Hafızaya Kaydet ve Güncelle
+    function saveAndRender() {
+        localStorage.setItem('budgetApp_cards', JSON.stringify(cards));
+        renderCards();
+    }
+
+    // Güvenlik için HTML temizleme
+    function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+        });
+    }
+
+    // Başlangıç Yüklemesi
+    renderCards();
+</script>
+
+</body>
+</html>
